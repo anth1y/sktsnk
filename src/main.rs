@@ -1,14 +1,18 @@
-extern crate pcap;
+extern crate pnet;
 extern crate clap;
 use clap::App;
 
+fn iface(i: str){
+# TODO match against the string of the interface passed in via flag
+}
 fn main() {
     App::new("sktsnk")
         .version("0.1.0")
         .about("Does tcpdump like things")
         .author("Anthony Riley")
-        .usage("sktsnk [port src dest dev out] <file.pcap>")
+        .usage("sktsnk [-pidxo] <file.pnet>")
         .get_matches();
-    let mut cap = pcap::Device::lookup().unwrap().open().unwrap();
-    println!("{:?}", cap.next());
+    for interface in pnet::datalink::interfaces() {
+    println!("{}", interface);
+    }
 }
