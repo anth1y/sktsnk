@@ -4,8 +4,7 @@ use clap::{App, Arg};
 use pnet::datalink::{self, NetworkInterface};
 
 
-fn iface(){
-    let interface_name = "foo"; // pass in interface from clap
+fn iface(itnerface_name: String ){
     let interface_names_match =
         |iface: &NetworkInterface| iface.name == interface_name;
 
@@ -17,7 +16,7 @@ fn iface(){
                               .unwrap();
 }
 fn main() {
-    App::new("sktsnk")
+ let matches =   App::new("sktsnk")
         .version("0.1.0")
         .about("Does tcpdump like things")
         .author("Anthony Riley")
@@ -36,7 +35,7 @@ fn main() {
             .takes_value(true),
             )
         .get_matches();
-    for interface in pnet::datalink::interfaces() {
-    println!("{}", interface);
-    }
+    let interface_name = matches.value_of("iface");
+    println!("{}", interface_name);
+    iface(interface_name);
 }
