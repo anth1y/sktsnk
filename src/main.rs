@@ -2,7 +2,9 @@ extern crate pnet;
 extern crate clap;
 use clap::{App, Arg};
 use pnet::datalink::{self, NetworkInterface};
-
+use pnet::packet::tcp::TcpPacket;
+use pnet::packet::ip::{IpNextHeaderProtocol, IpNextHeaderProtocols};
+use std::net::IpAddr;
 
 fn iface(interface_name: String ){
     let interface_names_match =
@@ -10,10 +12,28 @@ fn iface(interface_name: String ){
 
     // Find the network interface with the provided name
     let interfaces = datalink::interfaces();
-    let interface = interfaces.into_iter()
+    let _interface = interfaces.into_iter()
                               .filter(interface_names_match)
                               .next()
                               .unwrap();
+}
+
+fn handle_tcp_packet(interface_name: &str, source: IpAddr, destination: IpAddr, packet: &[u8]){
+    let tcp = TcpPacket::new(packet);
+    if let Some(tcp) = tcp {
+        println!(
+            "[{}]: TCP Packet: {}:{} > {}:{}; length: {}",
+            interface_name,
+            source,
+            tcp.get_source(),
+            destination,
+            tcp.get_destination(),
+            packet.len()
+            );
+    } else {
+        println!("[{}]: Malformed TCP Packet", interface_name);
+    }
+
 }
 fn main() {
  let matches =   App::new("sktsnk")
@@ -35,7 +55,8 @@ fn main() {
             .takes_value(true),
             )
         .get_matches();
-    let interface_name = matches.value_of("iface");
+    if let Some(interface_name) = matches.value_of("iface"){
     println!("{:?}", interface_name);
-    iface(interface_name);
+    iface(interface_name.to_string());
+    }
 }
