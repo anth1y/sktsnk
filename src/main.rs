@@ -1,10 +1,10 @@
+#![allow(unused_imports)]
 extern crate pnet;
 extern crate clap;
 use clap::{App, Arg};
+use tokio;
+use tokio::TcpListener;
 use pnet::datalink::{self, NetworkInterface};
-use pnet::packet::tcp::TcpPacket;
-use pnet::packet::ip::{IpNextHeaderProtocol, IpNextHeaderProtocols};
-use std::net::IpAddr;
 
 fn iface(interface_name: String ){
     let interface_names_match =
@@ -17,22 +17,9 @@ fn iface(interface_name: String ){
                               .next()
                               .unwrap();
 }
+// pass in addr from clap flag
 
-fn handle_tcp_packet(interface_name: &str, source: IpAddr, destination: IpAddr, packet: &[u8]){
-    let tcp = TcpPacket::new(packet);
-    if let Some(tcp) = tcp {
-        println!(
-            "[{}]: TCP Packet: {}:{} > {}:{}; length: {}",
-            interface_name,
-            source,
-            tcp.get_source(),
-            destination,
-            tcp.get_destination(),
-            packet.len()
-            );
-    } else {
-        println!("[{}]: Malformed TCP Packet", interface_name);
-    }
+fn net_addr(){
 
 }
 fn main() {
@@ -54,9 +41,18 @@ fn main() {
             .long("port")
             .takes_value(true),
             )
+         .arg(
+             Arg::with_name("addr")
+             .help("IP Address")
+             .long("addr")
+             .takes_value(true),
+             )
         .get_matches();
     if let Some(interface_name) = matches.value_of("iface"){
     println!("{:?}", interface_name);
     iface(interface_name.to_string());
     }
+let listener = TcpListener::bind(&addr).unwap();
+let port = matches.value_of("port");
+let addrs = matches.value_of("addr");
 }
